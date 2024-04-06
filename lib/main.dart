@@ -10,110 +10,276 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Practice 4',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const MyHomePage(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key, required this.title}) : super(key: key);
-
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _currentIndex = 0;
-  final List<Widget> _screens = [
-    ScreenWidget(
-      color: Colors.red,
-      title: 'Screen 1',
-    ),
-    ScreenWidget(
-      color: Colors.green,
-      title: 'Screen 2',
-    ),
-    ScreenWidget(
-      color: Colors.blue,
-      title: 'Screen 3',
-    ),
-    ScreenWidget(
-      color: Colors.orange,
-      title: 'Screen 4',
-    ),
-    ScreenWidget(
-      color: Colors.purple,
-      title: 'Screen 5',
-    ),
-  ];
+class MyHomePage extends StatelessWidget {
+  const MyHomePage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: const Text('Practice 4'),
       ),
-      body: _screens[_currentIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Screen 1',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.business),
-            label: 'Screen 2',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.school),
-            label: 'Screen 3',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: 'Screen 4',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Screen 5',
-          ),
+      body: ListView(
+        children: [
+          _buildListItem(context, 'Column', () {
+            Navigator.push(context, MaterialPageRoute(builder: (_) => _ColumnScreen()));
+          }),
+          _buildListItem(context, 'ListView', () {
+            Navigator.push(context, MaterialPageRoute(builder: (_) => _ListViewScreen()));
+          }),
+          _buildListItem(context, 'Separated ListView', () {
+            Navigator.push(context, MaterialPageRoute(builder: (_) => _SeparatedListViewScreen()));
+          }),
         ],
       ),
     );
   }
+
+  Widget _buildListItem(BuildContext context, String title, VoidCallback onTap) {
+    return ListTile(
+      title: Text(title),
+      onTap: onTap,
+    );
+  }
 }
 
-class ScreenWidget extends StatelessWidget {
-  final Color color;
-  final String title;
+class _ColumnScreen extends StatefulWidget {
+  const _ColumnScreen({Key? key}) : super(key: key);
 
-  const ScreenWidget({required this.color, required this.title});
+  @override
+  _ColumnScreenState createState() => _ColumnScreenState();
+}
+
+class _ColumnScreenState extends State<_ColumnScreen> {
+  final List<String> _items = ['Item 1', 'Item 2', 'Item 3'];
+  late TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: color,
-      child: Center(
-        child: Text(
-          title,
-          style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-        ),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Column Screen'),
+      ),
+      body: ListView.builder(
+        itemCount: _items.length,
+        itemBuilder: (context, index) {
+          return ListTile(
+            title: Text(_items[index]),
+            trailing: IconButton(
+              icon: const Icon(Icons.delete),
+              onPressed: () {
+                setState(() {
+                  _items.removeAt(index);
+                });
+              },
+            ),
+          );
+        },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          showDialog(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                title: const Text('Add Item'),
+                content: TextField(
+                  controller: _controller,
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      setState(() {
+                        _items.add(_controller.text);
+                        _controller.clear();
+                        Navigator.of(context).pop();
+                      });
+                    },
+                    child: const Text('Add'),
+                  ),
+                ],
+              );
+            },
+          );
+        },
+        child: const Icon(Icons.add),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+}
+
+class _ListViewScreen extends StatefulWidget {
+  const _ListViewScreen({Key? key}) : super(key: key);
+
+  @override
+  _ListViewScreenState createState() => _ListViewScreenState();
+}
+
+class _ListViewScreenState extends State<_ListViewScreen> {
+  final List<String> _items = ['Item A', 'Item B', 'Item C'];
+  late TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('ListView Screen'),
+      ),
+      body: ListView.builder(
+        itemCount: _items.length,
+        itemBuilder: (context, index) {
+          return ListTile(
+            title: Text(_items[index]),
+            trailing: IconButton(
+              icon: const Icon(Icons.delete),
+              onPressed: () {
+                setState(() {
+                  _items.removeAt(index);
+                });
+              },
+            ),
+          );
+        },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          showDialog(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                title: const Text('Add Item'),
+                content: TextField(
+                  controller: _controller,
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      setState(() {
+                        _items.add(_controller.text);
+                        _controller.clear();
+                        Navigator.of(context).pop();
+                      });
+                    },
+                    child: const Text('Add'),
+                  ),
+                ],
+              );
+            },
+          );
+        },
+        child: const Icon(Icons.add),
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+}
+
+class _SeparatedListViewScreen extends StatefulWidget {
+  const _SeparatedListViewScreen({Key? key}) : super(key: key);
+
+  @override
+  _SeparatedListViewScreenState createState() => _SeparatedListViewScreenState();
+}
+
+class _SeparatedListViewScreenState extends State<_SeparatedListViewScreen> {
+  final List<String> _items = ['Item 1', 'Item 2', 'Item 3'];
+  late TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Separated ListView Screen'),
+      ),
+      body: ListView.separated(
+        itemCount: _items.length,
+        separatorBuilder: (BuildContext context, int index) => const Divider(),
+        itemBuilder: (BuildContext context, int index) {
+          return ListTile(
+            title: Text(_items[index]),
+            trailing: IconButton(
+              icon: const Icon(Icons.delete),
+              onPressed: () {
+                setState(() {
+                  _items.removeAt(index);
+                });
+              },
+            ),
+          );
+        },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          showDialog(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                title: const Text('Add Item'),
+                content: TextField(
+                  controller: _controller,
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      setState(() {
+                        _items.add(_controller.text);
+                        _controller.clear();
+                        Navigator.of(context).pop();
+                      });
+                    },
+                    child: const Text('Add'),
+                  ),
+                ],
+              );
+            },
+          );
+        },
+        child: const Icon(Icons.add),
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 }
