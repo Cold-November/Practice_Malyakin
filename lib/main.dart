@@ -10,11 +10,18 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Practice 4',
+      title: 'Practice 5',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => const MyHomePage(),
+        '/screen2': (context) => const NewScreen2(),
+        '/screen3': (context) => const NewScreen3(),
+        '/screen4': (context) => const NewScreen4(),
+        '/screen5': (context) => const NewScreen5(),
+      },
     );
   }
 }
@@ -26,260 +33,134 @@ class MyHomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Practice 4'),
+        title: const Text('Home Page'),
       ),
       body: ListView(
         children: [
-          _buildListItem(context, 'Column', () {
-            Navigator.push(context, MaterialPageRoute(builder: (_) => _ColumnScreen()));
-          }),
-          _buildListItem(context, 'ListView', () {
-            Navigator.push(context, MaterialPageRoute(builder: (_) => _ListViewScreen()));
-          }),
-          _buildListItem(context, 'Separated ListView', () {
-            Navigator.push(context, MaterialPageRoute(builder: (_) => _SeparatedListViewScreen()));
-          }),
+          _buildListItem(context, 'Screen 1', '/'),
+          _buildListItem(context, 'Screen 2', '/screen2'),
+          _buildListItem(context, 'Screen 3', '/screen3'),
+          _buildListItem(context, 'Screen 4', '/screen4'),
+          _buildListItem(context, 'Screen 5', '/screen5'),
         ],
       ),
     );
   }
 
-  Widget _buildListItem(BuildContext context, String title, VoidCallback onTap) {
+  Widget _buildListItem(BuildContext context, String title, String route) {
     return ListTile(
       title: Text(title),
-      onTap: onTap,
+      onTap: () {
+        Navigator.pushNamed(context, route);
+      },
     );
   }
 }
 
-class _ColumnScreen extends StatefulWidget {
-  const _ColumnScreen({Key? key}) : super(key: key);
+class NewScreen2 extends StatelessWidget {
+  const NewScreen2({Key? key}) : super(key: key);
 
-  @override
-  _ColumnScreenState createState() => _ColumnScreenState();
-}
-
-class _ColumnScreenState extends State<_ColumnScreen> {
-  final List<String> _items = ['Item 1', 'Item 2', 'Item 3'];
-  late TextEditingController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = TextEditingController();
+  // Эмуляция получения данных с использованием Future API
+  Future<String> _fetchData() async {
+    return Future.delayed(
+      const Duration(seconds: 2),
+          () => 'Data fetched from Future API',
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Column Screen'),
+        title: const Text('Screen 2'),
       ),
-      body: ListView.builder(
-        itemCount: _items.length,
-        itemBuilder: (context, index) {
-          return ListTile(
-            title: Text(_items[index]),
-            trailing: IconButton(
-              icon: const Icon(Icons.delete),
-              onPressed: () {
-                setState(() {
-                  _items.removeAt(index);
-                });
-              },
-            ),
-          );
-        },
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          showDialog(
-            context: context,
-            builder: (context) {
-              return AlertDialog(
-                title: const Text('Add Item'),
-                content: TextField(
-                  controller: _controller,
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      setState(() {
-                        _items.add(_controller.text);
-                        _controller.clear();
-                        Navigator.of(context).pop();
-                      });
-                    },
-                    child: const Text('Add'),
-                  ),
-                ],
-              );
-            },
-          );
-        },
-        child: const Icon(Icons.add),
+      body: Center(
+        child: FutureBuilder<String>(
+          future: _fetchData(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const CircularProgressIndicator();
+            } else if (snapshot.hasError) {
+              return const Text('Error fetching data');
+            } else {
+              return Text(snapshot.data ?? 'No data');
+            }
+          },
+        ),
       ),
     );
   }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
 }
 
-class _ListViewScreen extends StatefulWidget {
-  const _ListViewScreen({Key? key}) : super(key: key);
+class NewScreen3 extends StatelessWidget {
+  const NewScreen3({Key? key}) : super(key: key);
 
-  @override
-  _ListViewScreenState createState() => _ListViewScreenState();
-}
-
-class _ListViewScreenState extends State<_ListViewScreen> {
-  final List<String> _items = ['Item A', 'Item B', 'Item C'];
-  late TextEditingController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = TextEditingController();
+  // Эмуляция сохранения данных с использованием async/await
+  Future<void> _saveData() async {
+    await Future.delayed(const Duration(seconds: 2));
+    print('Data saved with async/await');
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('ListView Screen'),
+        title: const Text('Screen 3'),
       ),
-      body: ListView.builder(
-        itemCount: _items.length,
-        itemBuilder: (context, index) {
-          return ListTile(
-            title: Text(_items[index]),
-            trailing: IconButton(
-              icon: const Icon(Icons.delete),
-              onPressed: () {
-                setState(() {
-                  _items.removeAt(index);
-                });
-              },
-            ),
-          );
-        },
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          showDialog(
-            context: context,
-            builder: (context) {
-              return AlertDialog(
-                title: const Text('Add Item'),
-                content: TextField(
-                  controller: _controller,
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      setState(() {
-                        _items.add(_controller.text);
-                        _controller.clear();
-                        Navigator.of(context).pop();
-                      });
-                    },
-                    child: const Text('Add'),
-                  ),
-                ],
-              );
-            },
-          );
-        },
-        child: const Icon(Icons.add),
+      body: Center(
+        child: ElevatedButton(
+          onPressed: () async {
+            await _saveData();
+            Navigator.pushNamed(context, '/screen4');
+          },
+          child: const Text('Save Data and Go to Screen 4'),
+        ),
       ),
     );
   }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
 }
 
-class _SeparatedListViewScreen extends StatefulWidget {
-  const _SeparatedListViewScreen({Key? key}) : super(key: key);
-
-  @override
-  _SeparatedListViewScreenState createState() => _SeparatedListViewScreenState();
-}
-
-class _SeparatedListViewScreenState extends State<_SeparatedListViewScreen> {
-  final List<String> _items = ['Item 1', 'Item 2', 'Item 3'];
-  late TextEditingController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = TextEditingController();
-  }
+class NewScreen4 extends StatelessWidget {
+  const NewScreen4({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Separated ListView Screen'),
+        title: const Text('Screen 4'),
       ),
-      body: ListView.separated(
-        itemCount: _items.length,
-        separatorBuilder: (BuildContext context, int index) => const Divider(),
-        itemBuilder: (BuildContext context, int index) {
-          return ListTile(
-            title: Text(_items[index]),
-            trailing: IconButton(
-              icon: const Icon(Icons.delete),
-              onPressed: () {
-                setState(() {
-                  _items.removeAt(index);
-                });
-              },
-            ),
-          );
-        },
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          showDialog(
-            context: context,
-            builder: (context) {
-              return AlertDialog(
-                title: const Text('Add Item'),
-                content: TextField(
-                  controller: _controller,
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      setState(() {
-                        _items.add(_controller.text);
-                        _controller.clear();
-                        Navigator.of(context).pop();
-                      });
-                    },
-                    child: const Text('Add'),
-                  ),
-                ],
-              );
-            },
-          );
-        },
-        child: const Icon(Icons.add),
+      body: Center(
+        child: ElevatedButton(
+          onPressed: () {
+            Navigator.pushNamed(context, '/screen5');
+          },
+          child: const Text('Go to Screen 5'),
+        ),
       ),
     );
   }
+}
+
+class NewScreen5 extends StatelessWidget {
+  const NewScreen5({Key? key}) : super(key: key);
 
   @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Screen 5'),
+      ),
+      body: Center(
+        child: ElevatedButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          child: const Text('Go back'),
+        ),
+      ),
+    );
   }
 }
+
+
+
