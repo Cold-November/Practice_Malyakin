@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:get_it/get_it.dart';
+import 'new_screen_6.dart'; // Добавлено
 
 // Регистрация GetIt
 final getIt = GetIt.instance;
@@ -58,6 +59,7 @@ class MyApp extends StatelessWidget {
           '/screen3': (context) => const NewScreen3(),
           '/screen4': (context) => const NewScreen4(),
           '/screen5': (context) => const NewScreen5(),
+          '/screen6': (context) => const NewScreen6(), // Добавлено
         },
       ),
     );
@@ -83,6 +85,7 @@ class MyHomePage extends StatelessWidget {
           _buildListItem(context, 'Screen 3', '/screen3'),
           _buildListItem(context, 'Screen 4', '/screen4'),
           _buildListItem(context, 'Screen 5', '/screen5'),
+          _buildListItem(context, 'Screen 6', '/screen6'), // Добавлено
         ],
       ),
     );
