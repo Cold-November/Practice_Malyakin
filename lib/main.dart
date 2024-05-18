@@ -1,8 +1,42 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:get_it/get_it.dart';
+
+// Регистрация GetIt
+final getIt = GetIt.instance;
+
+void setup() {
+  getIt.registerSingleton<AppState>(AppState());
+}
 
 void main() {
+  setup();
   runApp(const MyApp());
+}
+
+// Пример состояния приложения, которое будет передаваться через Inherited Widget и GetIt
+class AppState {
+  String data = 'Shared Data';
+}
+
+// Создание Inherited Widget для передачи состояния
+class AppStateProvider extends InheritedWidget {
+  final AppState appState;
+
+  const AppStateProvider({
+    Key? key,
+    required this.appState,
+    required Widget child,
+  }) : super(key: key, child: child);
+
+  static AppStateProvider? of(BuildContext context) {
+    return context.dependOnInheritedWidgetOfExactType<AppStateProvider>();
+  }
+
+  @override
+  bool updateShouldNotify(AppStateProvider oldWidget) {
+    return appState != oldWidget.appState;
+  }
 }
 
 class MyApp extends StatelessWidget {
@@ -10,19 +44,22 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Practice 8',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
+    return AppStateProvider(
+      appState: getIt<AppState>(),
+      child: MaterialApp(
+        title: 'Practice 9',
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+        ),
+        initialRoute: '/',
+        routes: {
+          '/': (context) => const MyHomePage(),
+          '/screen2': (context) => const NewScreen2(),
+          '/screen3': (context) => const NewScreen3(),
+          '/screen4': (context) => const NewScreen4(),
+          '/screen5': (context) => const NewScreen5(),
+        },
       ),
-      initialRoute: '/',
-      routes: {
-        '/': (context) => const MyHomePage(),
-        '/screen2': (context) => const NewScreen2(),
-        '/screen3': (context) => const NewScreen3(),
-        '/screen4': (context) => const NewScreen4(),
-        '/screen5': (context) => const NewScreen5(),
-      },
     );
   }
 }
@@ -32,12 +69,15 @@ class MyHomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final appState = AppStateProvider.of(context)!.appState;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Home Page'),
       ),
       body: ListView(
         children: [
+          Text('App State: ${appState.data}'),
           _buildListItem(context, 'Screen 1', '/'),
           _buildListItem(context, 'Screen 2', '/screen2'),
           _buildListItem(context, 'Screen 3', '/screen3'),
@@ -71,6 +111,8 @@ class NewScreen2 extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final appState = getIt<AppState>();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Screen 2'),
@@ -84,7 +126,7 @@ class NewScreen2 extends StatelessWidget {
             } else if (snapshot.hasError) {
               return const Text('Error fetching data');
             } else {
-              return Text(snapshot.data ?? 'No data');
+              return Text('${snapshot.data ?? 'No data'} - ${appState.data}');
             }
           },
         ),
@@ -104,6 +146,8 @@ class NewScreen3 extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final appState = AppStateProvider.of(context)!.appState;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Screen 3'),
@@ -112,6 +156,7 @@ class NewScreen3 extends StatelessWidget {
         child: ElevatedButton(
           onPressed: () async {
             await _saveData();
+            appState.data = 'Updated Data from Screen 3';
             Navigator.pushNamed(context, '/screen4');
           },
           child: const Text('Save Data and Go to Screen 4'),
@@ -126,6 +171,8 @@ class NewScreen4 extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final appState = AppStateProvider.of(context)!.appState;
+
     // Список URL-адресов изображений
     final List<String> imageUrls = [
       'https://cdn.tripster.ru/photos/41d79b35-f2c2-48eb-97d6-d4c69e8e539d.jpg',
@@ -139,18 +186,25 @@ class NewScreen4 extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Screen 4'),
       ),
-      body: ListView.builder(
-        itemCount: imageUrls.length,
-        itemBuilder: (context, index) {
-          return Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: CachedNetworkImage(
-              imageUrl: imageUrls[index],
-              placeholder: (context, url) => const CircularProgressIndicator(),
-              errorWidget: (context, url, error) => const Icon(Icons.error),
+      body: Column(
+        children: [
+          Text('App State: ${appState.data}'),
+          Expanded(
+            child: ListView.builder(
+              itemCount: imageUrls.length,
+              itemBuilder: (context, index) {
+                return Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: CachedNetworkImage(
+                    imageUrl: imageUrls[index],
+                    placeholder: (context, url) => const CircularProgressIndicator(),
+                    errorWidget: (context, url, error) => const Icon(Icons.error),
+                  ),
+                );
+              },
             ),
-          );
-        },
+          ),
+        ],
       ),
     );
   }
@@ -161,16 +215,24 @@ class NewScreen5 extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final appState = getIt<AppState>();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Screen 5'),
       ),
       body: Center(
-        child: ElevatedButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          child: const Text('Go back'),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text('App State: ${appState.data}'),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text('Go back'),
+            ),
+          ],
         ),
       ),
     );
